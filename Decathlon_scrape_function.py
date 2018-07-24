@@ -25,6 +25,6 @@ def pagination():
     soup=BeautifulSoup(reqq.content,'html.parser')
     pages = soup.find("ul", {"class": "pagination"})
     url.append('https://www.decathlon.in' + (pages.find('a').get('href')))
-    print([scrape(link) for link in url])
+    return([scrape(link) for link in url])
 url=["https://www.decathlon.in/15098-jogging-shoes"]
 pagination()
