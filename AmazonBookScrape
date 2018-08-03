@@ -1,0 +1,41 @@
+import requests
+from bs4 import BeautifulSoup
+import json
+
+homeurl = open('ulr.txt','r')
+homeurls = homeurl.read()
+
+def my_page(url):
+	
+	page = requests.get(url)
+	soup = BeautifulSoup(page.content,'html.parser')
+	books=soup.find("ul", {"id":"s-results-list-atf"})
+	results = [ Amazon(ri) for ri in books ]            
+	return(results)
+
+class Amazon:
+	def __init__(self, ia):
+		try:
+			self.name=ia.find("h2",{"class":"a-size-medium s-inline s-access-title  a-text-normal"}).get_text()
+			self.booktype=ia.find("h3",{"class":"a-size-small s-inline  a-text-normal"}).get_text()
+			self.prices=ia.find("span",{"class":"a-size-small a-color-secondary a-text-strike"}).get_text()
+			print(self.name,self.booktype,self.prices)
+		except (AttributeError,TypeError):
+			pass
+
+	def to_dict(self):
+		return self.__dict__
+
+number_of_pages = 0
+
+def pagination(urls):
+	global number_of_pages
+	while number_of_pages < 2:
+		page = requests.get(urls)
+		soup = BeautifulSoup(page.content,'html.parser')
+		page_url=(soup.find("span",{"class":"pagnLink"}).find("a").get('href'))
+		number_of_pages+=1
+		pagination("https://www.amazon.in/" + page_url )
+		my_page("https://www.amazon.in/" + page_url )
+
+pagination(homeurls)
